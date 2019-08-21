@@ -1,13 +1,11 @@
 import com.google.common.collect.Maps;
 import org.activiti.engine.*;
 import org.activiti.engine.form.FormProperty;
-import org.activiti.engine.form.FormType;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.impl.form.DateFormType;
 import org.activiti.engine.impl.form.StringFormType;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
-import org.activiti.engine.repository.NativeDeploymentQuery;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -17,11 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import	java.text.SimpleDateFormat;
 import java.util.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 /**
  * @Project : sunlands-activiti
@@ -44,7 +37,7 @@ public class ActivitiMain {
         ProcessEngine processEngine = getProcessEngine();
 
         //部署流程定义文件
-        ProcessDefinition processDefinition = getProcessDefinition(processEngine);
+        ProcessDefinition processDefinition = getProcessDefinition(processEngine,"OfferApproveSales.bpmn20.xml");
 
         //启动运行流程
         ProcessInstance processInstance = getProcessInstance(processEngine, processDefinition);
@@ -56,6 +49,13 @@ public class ActivitiMain {
 
     }
 
+
+    /**
+     * 执行任务
+     * @param processEngine
+     * @param processInstance
+     * @throws ParseException
+     */
     private static void processTask(ProcessEngine processEngine, ProcessInstance processInstance) throws ParseException {
         Scanner scanner = new Scanner(System.in);
         while(processInstance != null && !processInstance.isEnded()){
@@ -91,6 +91,7 @@ public class ActivitiMain {
      * @throws ParseException
      */
     private static Map<String, Object> getVariablesMap(ProcessEngine processEngine, Scanner scanner, Task task) throws ParseException {
+
         //获取表单
         FormService formService = processEngine.getFormService();
         TaskFormData taskFormData = formService.getTaskFormData(task.getId());
@@ -102,17 +103,17 @@ public class ActivitiMain {
         for (FormProperty formProperty : formProperties) {
             String line = null;
             if(StringFormType.class.isInstance(formProperty.getType())){
-                logger.info("请输入 {}",formProperty.getName());
+                logger.info("请输入 [{}]",formProperty.getName());
                 line = scanner.nextLine();
                 variables.put(formProperty.getId(),line);
             }else if(DateFormType.class.isInstance(formProperty.getType())){
-                logger.info("请输入 {} ？格式（yyyy-MM-dd）",formProperty.getName());
+                logger.info("请输入 [{}] ？格式（yyyy-MM-dd）",formProperty.getName());
                 line = scanner.nextLine();
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date date = simpleDateFormat.parse(line);
                 variables.put(formProperty.getId(),date);
             }else{
-                logger.info("类型暂时不支持：{}",formProperty.getType());
+                logger.info("类型暂时不支持：[{}]",formProperty.getType());
             }
             logger.info("您输入的内容是: [{}]", line);
         }
@@ -139,11 +140,11 @@ public class ActivitiMain {
      * @param processEngine
      * @return
      */
-    private static ProcessDefinition getProcessDefinition(ProcessEngine processEngine) {
+    private static ProcessDefinition getProcessDefinition(ProcessEngine processEngine,String bpmnFile) {
         //获取service,对流程定义文件进行操作
         RepositoryService repositoryService = processEngine.getRepositoryService();
         DeploymentBuilder deploymentBuilder = repositoryService.createDeployment();
-        deploymentBuilder.addClasspathResource("OfferApproveSales.bpmn20.xml");
+        deploymentBuilder.addClasspathResource(bpmnFile);
         Deployment deployment = deploymentBuilder.deploy();
         String id = deployment.getId();
 

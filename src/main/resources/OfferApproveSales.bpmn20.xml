@@ -7,7 +7,7 @@
         <activiti:formProperty id="message" name="申请信息" type="string" required="true"></activiti:formProperty>
         <activiti:formProperty id="name" name="申请人姓名" type="string" required="true"></activiti:formProperty>
         <activiti:formProperty id="submitTime" name="提交时间" type="date" datePattern="yyyy-MM-dd" required="true"></activiti:formProperty>
-        <activiti:formProperty id="submitType" name="确认申请" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="submitType" name="确认申请 Y/N" type="string" required="true"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="submitForm"></sequenceFlow>
@@ -15,7 +15,7 @@
     <sequenceFlow id="flow2" sourceRef="submitForm" targetRef="decideSubmit"></sequenceFlow>
     <userTask id="postApprove" name="编制审核">
       <extensionElements>
-        <activiti:formProperty id="postApproveResult" name="编制审批结果" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="postApproveResult" name="编制审批结果 Y/N" type="string" required="true"></activiti:formProperty>
         <activiti:formProperty id="postApproveMsg" name="编制审批信息" type="string" required="true"></activiti:formProperty>
       </extensionElements>
     </userTask>
@@ -26,14 +26,14 @@
     <sequenceFlow id="flow4" sourceRef="postApprove" targetRef="decidePostApprove"></sequenceFlow>
     <userTask id="sscApprove" name="薪资审核">
       <extensionElements>
-        <activiti:formProperty id="sscApproveResult" name="资质审批结果" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="sscApproveResult" name="资质审批结果 Y/N" type="string" required="true"></activiti:formProperty>
         <activiti:formProperty id="sscApproveMsg" name="资质审核信息" type="string" required="true"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow5" sourceRef="decidePostApprove" targetRef="sscApprove">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${postApproveResult == "y" || postApproveResult == "Y"}]]></conditionExpression>
     </sequenceFlow>
-    <exclusiveGateway id="decideSscApprove" name="资质审核校验"></exclusiveGateway>
+    <exclusiveGateway id="decideSscApprove" name="资质审核校验 Y/N"></exclusiveGateway>
     <sequenceFlow id="flow7" sourceRef="sscApprove" targetRef="decideSscApprove"></sequenceFlow>
     <endEvent id="endEvent" name="结束"></endEvent>
     <sequenceFlow id="flow8" sourceRef="decideSscApprove" targetRef="endEvent">
@@ -50,7 +50,9 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${sscApproveResult == "n" || sscApproveResult == "N"}]]></conditionExpression>
     </sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_offerApproveSales">
+
+
+  <!--<bpmndi:BPMNDiagram id="BPMNDiagram_offerApproveSales">
     <bpmndi:BPMNPlane bpmnElement="offerApproveSales" id="BPMNPlane_offerApproveSales">
       <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
         <omgdc:Bounds height="35.0" width="35.0" x="90.0" y="260.0"></omgdc:Bounds>
@@ -127,5 +129,7 @@
         <omgdi:waypoint x="222.0" y="305.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
-  </bpmndi:BPMNDiagram>
+  </bpmndi:BPMNDiagram>-->
+
+
 </definitions>
